@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 class Admin extends Authenticatable implements JWTSubject
 {
     use HasFactory;
-    protected $guard = 'admins';
+    protected $guard = 'admin';
     protected $table = 'admins';
     protected $fillable = [
         'name',

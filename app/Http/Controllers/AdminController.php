@@ -9,6 +9,9 @@ use JWTAuthException;
 use App\Models\Admin;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Hash;
 
 
 class AdminController extends Controller
@@ -22,12 +25,14 @@ class AdminController extends Controller
 	}
 
 	public function login(Request $request) {
-        // dd($request->email);
-    if (!$token = auth()->attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
-            return $this->respondWithToken($token);
+        $credentials = $request->only('email', 'password');
 
+
+    if ($token = JWTAuth::attempt($credentials)) {
+        return $this->respondWithToken($token);
+    }
+
+    return response()->json(['error' => 'Unauthorized'], 401);
 }
 
     /**
@@ -47,7 +52,7 @@ class AdminController extends Controller
      */
     public function logout()
     {
-        auth()->logout();
+        auth('admin')->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
     }
@@ -74,13 +79,29 @@ class AdminController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth('admin')->factory()->getTTL() * 60
         ]);
     }
 
-    protected function guard()
+     protected function validator(array $data)
     {
-        return Auth::guard('admin');
+        return Validator::make($data, [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
     }
+
+    protected function create(Request $request)
+    {
+        return Admin::create([
+            'name' => $request->name,
+            'email' =>$request->email,
+            'password' => Hash::make($request->password),
+        ]);
+    }
+
+   
     
+   
 }

@@ -21,13 +21,23 @@ use App\Http\Controllers\UserController;
 // });
 
 
-Route::group(['prefix' => 'admin'],function ()
-{
-	Route::post('/login',[AdminController::class,'login']);	
-});
+// Route::group(['prefix' => 'admin'],function ()
+// {
 
-Route::group(['prefix' => 'user','middleware'=>'api'],function ()
-{
-	Route::post('/login',[UserController::class,'login']);	
-});
+// 	Route::post('/login',[AdminController::class,'login']);	
+// });
 
+Route::group([
+
+    'prefix' => 'admin'
+
+], function ($router) {
+	Route::post('register', [AdminController::class,'create']);
+    Route::post('login', [AdminController::class,'login']);
+    Route::post('logout', [AdminController::class,'logout']);
+    Route::post('refresh', [AdminController::class,'refresh']);
+    Route::post('me', [AdminController::class,'me']);
+     Route::post('addUser', [UserController::class,'addUser']);
+
+
+});
