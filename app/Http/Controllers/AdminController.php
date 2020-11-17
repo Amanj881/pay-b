@@ -28,7 +28,7 @@ class AdminController extends Controller
         $credentials = $request->only('email', 'password');
 
 
-    if ($token = JWTAuth::attempt($credentials)) {
+    if ($token = auth()->guard("admin")->attempt($credentials)) {
         return $this->respondWithToken($token);
     }
 
@@ -42,7 +42,7 @@ class AdminController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        return response()->json(auth('admin')->user());
     }
 
     /**
@@ -64,7 +64,7 @@ class AdminController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        return $this->respondWithToken(auth('admin')->refresh());
     }
 
     /**
@@ -79,7 +79,8 @@ class AdminController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('admin')->factory()->getTTL() * 60
+            'expires_in' => auth('admin')->factory()->getTTL() * 60,
+            'user'=>auth('admin')->user(),
         ]);
     }
 

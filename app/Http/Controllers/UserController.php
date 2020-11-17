@@ -4,21 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AddUserRequest;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Foundation\Auth\RegistersUsers;
 
 class UserController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
+    use AuthenticatesUsers;
+
     public function __construct()
     {
-        // $this->middleware('auth:api', ['except' => ['login']]);
+        auth()->shouldUse('api');
+
     }
+
 
     /**
      * Get a JWT via given credentials.
@@ -29,7 +28,7 @@ class UserController extends Controller
     {
         $credentials = request(['email', 'password']);
 
-        if (! $token = auth()->attempt($credentials)) {
+        if (! $token = auth('api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -43,7 +42,7 @@ class UserController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        return response()->json(auth('api')->user());
     }
 
     /**
@@ -53,7 +52,7 @@ class UserController extends Controller
      */
     public function logout()
     {
-        auth()->logout();
+        auth('api')->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
     }
@@ -65,7 +64,7 @@ class UserController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        return $this->respondWithToken(auth('api')->refresh());
     }
 
     /**
@@ -80,24 +79,24 @@ class UserController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'user'=>auth('api')->user(),
+
         ]);
     }
-    public function addUser(AddUserRequest $request)
-    {
 
-        $data = new User();
-        
-            $data->name = $request->name;
-            $data->email =$request->email;
-            $data->password= Hash::make($request->password);
-            $data->mobile= $request->mobile;
-            $data->address= $request->address;
-            $data->gst_number = $request->gst_number;
-            $data->nature_of_business= $request->nature_of_business;
-            $data->street_address = $request->street_address;
-            $data->save();
-            return response()->json(['msg'=>'success'],200);
-        
-    }
+    // protected function create(Request $request)
+    // {
+    //     return Admin::create([
+    //         'name' => $request->name,
+    //         'email' =>$request->email,
+    //         'password' => Hash::make($request->password),
+    //          'mobile'=> $request->mobile;
+    //         'address'=> $request->address;
+    //         'gst_number' => $request->gst_number;
+    //        ' nature_of_business'=> $request->nature_of_business;
+    //        'street_address' =>$request->street_address;
+    //     ]);
+    // }
+   
 }

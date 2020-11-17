@@ -3,8 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AddUserController;
 use App\Http\Controllers\UserController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -37,7 +37,22 @@ Route::group([
     Route::post('logout', [AdminController::class,'logout']);
     Route::post('refresh', [AdminController::class,'refresh']);
     Route::post('me', [AdminController::class,'me']);
-     Route::post('addUser', [UserController::class,'addUser']);
+    Route::post('addUser', [AddUserController::class,'addUser']);
+    Route::get('getUser', [AddUserController::class,'getUser']);
+
+
+});
+Route::group([
+
+    'prefix' => 'user'
+
+], function ($router) {
+	// Route::post('register', [AdminController::class,'create']);
+    Route::post('login', [UserController::class,'login']);
+ //    Route::post('logout', [AdminController::class,'logout']);
+ //    Route::post('refresh', [AdminController::class,'refresh']);
+ //    Route::post('me', [AdminController::class,'me']);
+ //     Route::post('addUser', [AddUserController::class,'addUser']);
 
 
 });
